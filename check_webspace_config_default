@@ -1,0 +1,4 @@
+#!/bin/bash
+
+WEBSPACE=137000000
+MIN=1000000

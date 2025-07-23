@@ -1,0 +1,21 @@
+#!/bin/bash
+
+. check_webspace_config
+
+
+CURRENT=$(du -s )
+
+echo '<<<check_mk>>>'
+echo 'AgentOS: Webhoster'
+echo '<<<local:sep(0)>>>'
+
+# Zahl ermitteln
+C=$(echo $CURRENT|cut -d " " -f 1)
+
+# Prozentsatz ermitteln (geht mit bash nicht, daher wird es an python geschickt)
+
+PERC=$(echo "print ('{:.2f}'.format(100*$C/$WEBSPACE))" | python3)
+
+LEFT=$(echo "print ( $WEBSPACE - $C )" | python3 )
+
+echo "P \"Webspace\" fs_used_percent=$PERC;80;90;0;100 $PERC% used, $C bytes used, $LEFT bytes left of $WEBSPACE"
