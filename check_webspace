@@ -1,21 +1,74 @@
 #!/bin/bash
 
+# config einlesen:
+
+if [ -f check_webspace_config ]; then
 . check_webspace_config
+else
+echo '<<<check_mk>>>'
+echo 'AgentOS: Webhoster'
+echo '<<<local:sep(0)>>>'
+echo "3 \"Webspace\" -  check_webspace_config not found"
+exit
+fi
+# timestamp now
+NOW=$( echo "from datetime import datetime; print(datetime.now().strftime('%s'))"| python3 )
+
+# timestamp von cache
+
+if [ -f check_webspace_cache ]; then
+FILESTAMP=$( echo "import os;  st=os.stat('check_webspace_cache'); mtime=st.st_mtime;  print('{:.0f}'.format(mtime)) "| python3 )
+else
+FILESTAMP=0
+fi
+# wie lange ist letzte datenerhebung her?
+AGE=$(echo "print ( $NOW - $FILESTAMP )" | python3 )
 
 
-CURRENT=$(du -s )
+# cache noch ok=> Daten aus cachefile holen
+if [ $AGE -lt $CACHETIME ]; then
+
+source check_webspace_cache
+CACHED="(cached)"
+
+else
+
+# Daten frisch erheben
+CURRENT=$(du -s $DU_PATH)
+
+
+# Zahl extrahieren
+C=$(echo $CURRENT|cut -d " " -f 1)
+
+# Prozentsatz ermitteln (geht mit bash nicht, daher wird es an python geschickt)
+PERC=$(echo "print ('{:.0f}'.format(100*$C/$WEBSPACE))" | python3)
+
+# frei bytes berechnen
+LEFT=$(echo "print ( $WEBSPACE - $C )" | python3 )
+
+# frisches cache file erstellen
+
+cat <<EOF > check_webspace_cache
+
+#!/bin/bash
+PERC=$PERC
+LEFT=$LEFT
+
+EOF
+
+
+fi
+
+
+
+# AUSGABE für check_mk
+# P = Der Service Status wird durch die Angaben für Warn/Crit ermittelt
 
 echo '<<<check_mk>>>'
 echo 'AgentOS: Webhoster'
 echo '<<<local:sep(0)>>>'
+echo "P \"Webspace\" fs_used_percent=$PERC;80;90;0;100 $PERC% used, $C bytes used, $LEFT bytes left of $WEBSPACE $CACHED"
 
-# Zahl ermitteln
-C=$(echo $CURRENT|cut -d " " -f 1)
 
-# Prozentsatz ermitteln (geht mit bash nicht, daher wird es an python geschickt)
 
-PERC=$(echo "print ('{:.2f}'.format(100*$C/$WEBSPACE))" | python3)
 
-LEFT=$(echo "print ( $WEBSPACE - $C )" | python3 )
-
-echo "P \"Webspace\" fs_used_percent=$PERC;80;90;0;100 $PERC% used, $C bytes used, $LEFT bytes left of $WEBSPACE"

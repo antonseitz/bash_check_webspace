@@ -1,4 +1,16 @@
 #!/bin/bash
 
-WEBSPACE=137000000
-MIN=1000000
+# DEFAULT:
+DU_PATH="."
+
+# Falls script in einem Unterverzeichnis liegt:
+#DU_PATH=".."
+
+# wieviel Webspace haben wir laut Vertrag?
+WEBSPACE=40000000
+
+
+
+# wie lange soll der Cache verwendet werden, bevor neue Daten erhoben werden (in Sekunden)
+# 3600 = 1h
+CACHETIME=7200
