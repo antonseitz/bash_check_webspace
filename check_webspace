@@ -59,6 +59,8 @@ cat <<EOF > check_webspace_cache
 #!/bin/bash
 PERC=$PERC
 LEFT=$LEFT
+GB=$GB
+MB=$MB
 
 EOF
 
@@ -74,8 +76,3 @@ echo '<<<check_mk>>>'
 echo 'AgentOS: Webhoster'
 echo '<<<local:sep(0)>>>'
 echo "P \"Webspace\" fs_used_percent=$PERC;80;90;0;100 $PERC% used, $C bytes used, $LEFT bytes left of $WEBSPACE (= $MB MB ; $GB GB ) $CACHED"
-
-
-
-
-
