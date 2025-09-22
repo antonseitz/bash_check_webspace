@@ -42,6 +42,12 @@ C=$(echo $CURRENT|cut -d " " -f 1)
 
 # Prozentsatz ermitteln (geht mit bash nicht, daher wird es an python geschickt)
 PERC=$(echo "print ('{:.0f}'.format(100*$C/$WEBSPACE))" | python3)
+MB=$(echo "print ('{:.0f}'.format($WEBSPACE/1024))" | python3)
+GB=$(echo "print ('{:.0f}'.format($WEBSPACE/1048576))" | python3)
+
+
+
+
 
 # frei bytes berechnen
 LEFT=$(echo "print ( $WEBSPACE - $C )" | python3 )
@@ -67,7 +73,8 @@ fi
 echo '<<<check_mk>>>'
 echo 'AgentOS: Webhoster'
 echo '<<<local:sep(0)>>>'
-echo "P \"Webspace\" fs_used_percent=$PERC;80;90;0;100 $PERC% used, $C bytes used, $LEFT bytes left of $WEBSPACE $CACHED"
+echo "P \"Webspace\" fs_used_percent=$PERC;80;90;0;100 $PERC% used, $C bytes used, $LEFT bytes left of $WEBSPACE (= $MB MB ; $GB GB ) $CACHED"
+
 
 
 
